@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://zoom-storage-server-1.onrender.com/api';
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://backend-iota-inky-13.vercel.app/api';
 
 const api = axios.create({
     baseURL: API_URL,
