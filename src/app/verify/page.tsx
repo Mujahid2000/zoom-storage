@@ -74,7 +74,7 @@ function VerifyContent() {
             const { data } = await api.post('/auth/resend-verification', { email: emailForResend });
             toast.success(data.message);
             if (data.verificationToken) {
-                console.log(`New Verification Link: http://localhost:3000/verify?token=${data.verificationToken}`);
+                console.log(`New Verification Link: https://zoom-storage.vercel.app/verify?token=${data.verificationToken}`);
                 toast.info('Dev Mode: New link logged to console');
             }
             setShowResend(false);

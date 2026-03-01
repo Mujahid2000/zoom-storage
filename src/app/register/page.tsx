@@ -65,7 +65,7 @@ export default function RegisterPage() {
             });
             toast.success(data.message || 'Account created successfully');
             if (data.verificationToken) {
-                const link = `http://localhost:3000/verify?token=${data.verificationToken}`;
+                const link = `https://zoom-storage.vercel.app/verify?token=${data.verificationToken}`;
                 setVerificationLink(link);
             }
             setIsRegistered(true);

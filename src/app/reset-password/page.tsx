@@ -56,9 +56,10 @@ function ResetPasswordContent() {
             setStatus('success');
             toast.success('Password reset successfully');
             setTimeout(() => router.push('/login'), 2000);
-        } catch (err: any) {
+        } catch (err: unknown) {
             setStatus('idle');
-            toast.error(err.response?.data?.error || 'Failed to reset password');
+            const error = err as { response?: { data?: { error?: string } } };
+            toast.error(error.response?.data?.error || 'Failed to reset password');
         }
     };
 
