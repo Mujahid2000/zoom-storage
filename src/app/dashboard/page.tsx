@@ -521,7 +521,7 @@ export default function UserDashboard() {
                                                         </DropdownMenuItem>
                                                     )}
                                                     <DropdownMenuItem asChild>
-                                                        <a href={`http://localhost:5001/api/files/${f.id}/download?token=${typeof window !== 'undefined' ? encodeURIComponent(localStorage.getItem('token') || '') : ''}`} target="_blank" rel="noopener noreferrer" className="cursor-pointer">Download</a>
+                                                        <a href={`https://zoom-storage-server.onrender.com/api/files/${f.id}/download?token=${typeof window !== 'undefined' ? encodeURIComponent(localStorage.getItem('token') || '') : ''}`} target="_blank" rel="noopener noreferrer" className="cursor-pointer">Download</a>
                                                     </DropdownMenuItem>
 
                                                     <DropdownMenuItem onClick={() => {
