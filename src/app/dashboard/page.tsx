@@ -5,6 +5,7 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { useGetFilesQuery, useUploadFileMutation, useDeleteFileMutation, useRenameFileMutation } from '../../lib/api/filesApiSlice';
 import { useGetFoldersQuery, useCreateFolderMutation, useDeleteFolderMutation, useRenameFolderMutation, useGetFolderPathQuery } from '../../lib/api/foldersApiSlice';
+import { useGetCurrentSubscriptionQuery } from '../../lib/api/packagesApiSlice';
 import { Search, Plus, Upload, Folder, MoreVertical, File, FileImage, FileVideo, FileAudio, FileText, Check, Loader2, ChevronRight, Home, Pencil, ExternalLink } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
@@ -43,7 +44,7 @@ import {
     DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { toast } from 'sonner';
+import { toast, Toaster } from 'sonner';
 import Image from 'next/image';
 
 const folderSchema = z.object({
@@ -61,6 +62,7 @@ export default function UserDashboard() {
     const { data: filesData, isLoading: filesLoading, isFetching: filesFetching } = useGetFilesQuery(currentFolderId);
     const { data: foldersData, isLoading: foldersLoading, isFetching: foldersFetching } = useGetFoldersQuery(currentFolderId);
     const { data: pathData, isFetching: pathFetching } = useGetFolderPathQuery(currentFolderId as string, { skip: !currentFolderId });
+    const { data: subscription } = useGetCurrentSubscriptionQuery();
 
     const files = filesData || [];
     const folders = foldersData || [];
@@ -119,6 +121,14 @@ export default function UserDashboard() {
         e.preventDefault();
         if (!selectedFile) return toast.error('Please select a file to upload');
 
+        // Check file size against package limit
+        const maxFileSizeMB = subscription?.package?.maxFileSizeMB || 5;
+        const fileSizeMB = selectedFile.size / (1024 * 1024);
+
+        if (fileSizeMB > maxFileSizeMB) {
+            return toast.error(`File is too large. Your current plan (${subscription?.package?.name || 'Free'}) allows a maximum of ${maxFileSizeMB} MB per file.`);
+        }
+
         const formData = new FormData();
         formData.append('file', selectedFile);
 
@@ -128,7 +138,8 @@ export default function UserDashboard() {
         }
         setIsUploading(true);
         try {
-            await uploadFile(formData).unwrap();
+            const response = await uploadFile(formData).unwrap();
+            console.log('[Upload] Response:', response);
             toast.success('File uploaded successfully');
             setIsFileDialogOpen(false);
             setSelectedFile(null);
@@ -580,6 +591,7 @@ export default function UserDashboard() {
                     </DialogFooter>
                 </DialogContent>
             </Dialog>
+            <Toaster />
         </div>
     );
 }

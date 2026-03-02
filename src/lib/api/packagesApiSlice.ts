@@ -19,6 +19,7 @@ export interface Subscription {
     userId: string;
     startDate: string;
     endDate?: string;
+    expiryDate?: string;
     status: string;
     package: Package;
     user: {

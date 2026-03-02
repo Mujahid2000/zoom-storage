@@ -29,11 +29,12 @@ interface Subscription {
 }
 
 interface UserSidebarProps {
-    usage?: Usage;
+    usage?: any;
     subscription?: Subscription;
+    fullSubscription?: any;
 }
 
-export function UserSidebar({ usage, subscription }: UserSidebarProps) {
+export function UserSidebar({ usage, subscription, fullSubscription }: UserSidebarProps) {
     const { logout } = useAuth();
     const pathname = usePathname();
 
@@ -81,6 +82,11 @@ export function UserSidebar({ usage, subscription }: UserSidebarProps) {
                         <p className="text-[10px] text-zinc-500 mt-2">
                             Using {usage?.usage?.storageMB || 0} MB of {subscription?.totalStorageMB || 1024} MB
                         </p>
+                        {fullSubscription?.expiryDate && (
+                            <p className="text-[10px] text-zinc-400 mt-1 font-medium">
+                                Expires: {new Date(fullSubscription.expiryDate).toLocaleDateString()}
+                            </p>
+                        )}
                         <Link href="/dashboard/plans">
                             <Button variant="link" size="sm" className="p-0 h-auto text-xs text-zinc-300 mt-2 hover:text-zinc-100">Upgrade Plan</Button>
                         </Link>
