@@ -67,6 +67,21 @@ export const adminApiSlice = apiSlice.injectEndpoints({
             }),
             invalidatesTags: ['Package'],
         }),
+        updatePackage: builder.mutation<Package, { id: string; data: Partial<Package> }>({
+            query: ({ id, data }) => ({
+                url: `/packages/${id}`,
+                method: 'PUT',
+                body: data,
+            }),
+            invalidatesTags: ['Package'],
+        }),
+        deletePackage: builder.mutation<{ message: string }, string>({
+            query: (id) => ({
+                url: `/packages/${id}`,
+                method: 'DELETE',
+            }),
+            invalidatesTags: ['Package'],
+        }),
     }),
 });
 
@@ -78,4 +93,6 @@ export const {
     useVerifyUserMutation,
     useDeleteUserMutation,
     useCreatePackageMutation,
+    useUpdatePackageMutation,
+    useDeletePackageMutation,
 } = adminApiSlice;

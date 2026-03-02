@@ -1,8 +1,8 @@
 'use client'
 import React, { useState } from 'react';
 import { Package, useGetPackagesQuery } from '@/lib/api/packagesApiSlice';
-import { useCreatePackageMutation } from '@/lib/api/adminApiSlice';
-import { Plus, Pencil, Trash2, Database, Loader2 } from 'lucide-react';
+import { useCreatePackageMutation, useUpdatePackageMutation, useDeletePackageMutation } from '@/lib/api/adminApiSlice';
+import { Plus, Pencil, Trash2, Database, Loader2, AlertTriangle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
     Table,
@@ -52,8 +52,14 @@ type PackageFormValues = z.infer<typeof packageSchema>;
 
 export default function PackagesManagement() {
     const [isDialogOpen, setIsDialogOpen] = useState(false);
+    const [editingPackage, setEditingPackage] = useState<Package | null>(null);
+    const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+    const [packageToDelete, setPackageToDelete] = useState<string | null>(null);
+
     const { data: packages = [], isLoading: packagesLoading } = useGetPackagesQuery();
     const [createPackage, { isLoading: isCreatingPackage }] = useCreatePackageMutation();
+    const [updatePackage, { isLoading: isUpdatingPackage }] = useUpdatePackageMutation();
+    const [deletePackage, { isLoading: isDeletingPackage }] = useDeletePackageMutation();
 
     const form = useForm<PackageFormValues>({
         resolver: zodResolver(packageSchema) as unknown as Resolver<PackageFormValues>,
@@ -71,13 +77,49 @@ export default function PackagesManagement() {
 
     const onSubmit: SubmitHandler<PackageFormValues> = async (values) => {
         try {
-            await createPackage(values).unwrap();
-            toast.success('Package created successfully');
+            if (editingPackage) {
+                await updatePackage({ id: editingPackage.id, data: values }).unwrap();
+                toast.success('Package updated successfully');
+            } else {
+                await createPackage(values).unwrap();
+                toast.success('Package created successfully');
+            }
             setIsDialogOpen(false);
+            setEditingPackage(null);
             form.reset();
         } catch (err: unknown) {
             const error = err as { data?: { message?: string } };
-            toast.error(error.data?.message || 'Failed to create package');
+            toast.error(error.data?.message || 'Failed to save package');
+        }
+    };
+
+    const handleEdit = (pkg: Package) => {
+        setEditingPackage(pkg);
+        form.reset({
+            name: pkg.name,
+            maxFolders: pkg.maxFolders,
+            maxNestingLevel: pkg.maxNestingLevel,
+            maxFileSizeMB: pkg.maxFileSizeMB,
+            totalFileLimit: pkg.totalFileLimit,
+            totalStorageMB: pkg.totalStorageMB,
+            filesPerFolder: pkg.filesPerFolder,
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            allowedFileTypes: pkg.allowedFileTypes as any,
+            price: pkg.price || 0,
+        });
+        setIsDialogOpen(true);
+    };
+
+    const confirmDelete = async () => {
+        if (!packageToDelete) return;
+        try {
+            await deletePackage(packageToDelete).unwrap();
+            toast.success('Package deleted successfully');
+            setIsDeleteDialogOpen(false);
+            setPackageToDelete(null);
+        } catch (err: unknown) {
+            const error = err as { data?: { message?: string } };
+            toast.error(error.data?.message || 'Failed to delete package');
         }
     };
 
@@ -93,7 +135,13 @@ export default function PackagesManagement() {
                     </p>
                 </div>
 
-                <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+                <Dialog open={isDialogOpen} onOpenChange={(open) => {
+                    setIsDialogOpen(open);
+                    if (!open) {
+                        setEditingPackage(null);
+                        form.reset();
+                    }
+                }}>
                     <DialogTrigger asChild>
                         <Button className="bg-zinc-100 text-zinc-900 hover:bg-zinc-200 font-bold gap-2">
                             <Plus size={18} /> Create Package
@@ -101,8 +149,10 @@ export default function PackagesManagement() {
                     </DialogTrigger>
                     <DialogContent className="bg-zinc-900 border-zinc-800 text-zinc-100 max-w-lg overflow-y-auto max-h-[90vh]">
                         <DialogHeader>
-                            <DialogTitle>New Package</DialogTitle>
-                            <DialogDescription className="text-zinc-400">Define limits and name for the new tier.</DialogDescription>
+                            <DialogTitle>{editingPackage ? 'Edit Package' : 'New Package'}</DialogTitle>
+                            <DialogDescription className="text-zinc-400">
+                                {editingPackage ? 'Update limits and settings for this tier.' : 'Define limits and name for the new tier.'}
+                            </DialogDescription>
                         </DialogHeader>
 
                         <Form {...form}>
@@ -214,9 +264,9 @@ export default function PackagesManagement() {
 
                                 <DialogFooter className="col-span-2 pt-4">
                                     <Button type="button" variant="ghost" onClick={() => setIsDialogOpen(false)}>Cancel</Button>
-                                    <Button type="submit" disabled={isCreatingPackage} className="bg-zinc-100 text-zinc-900 hover:bg-zinc-200">
-                                        {isCreatingPackage ? <Loader2 className="animate-spin mr-2" /> : null}
-                                        Save Package
+                                    <Button type="submit" disabled={isCreatingPackage || isUpdatingPackage} className="bg-zinc-100 text-zinc-900 hover:bg-zinc-200">
+                                        {(isCreatingPackage || isUpdatingPackage) ? <Loader2 className="animate-spin mr-2" /> : null}
+                                        {editingPackage ? 'Update Package' : 'Save Package'}
                                     </Button>
                                 </DialogFooter>
                             </form>
@@ -263,10 +313,23 @@ export default function PackagesManagement() {
                                     </TableCell>
                                     <TableCell className="text-right">
                                         <div className="flex justify-end gap-2">
-                                            <Button size="icon" variant="ghost" className="h-8 w-8 text-zinc-400 hover:text-zinc-100">
+                                            <Button
+                                                size="icon"
+                                                variant="ghost"
+                                                className="h-8 w-8 text-zinc-400 hover:text-zinc-100"
+                                                onClick={() => handleEdit(pkg)}
+                                            >
                                                 <Pencil size={16} />
                                             </Button>
-                                            <Button size="icon" variant="ghost" className="h-8 w-8 text-zinc-400 hover:text-red-400">
+                                            <Button
+                                                size="icon"
+                                                variant="ghost"
+                                                className="h-8 w-8 text-zinc-400 hover:text-red-400"
+                                                onClick={() => {
+                                                    setPackageToDelete(pkg.id);
+                                                    setIsDeleteDialogOpen(true);
+                                                }}
+                                            >
                                                 <Trash2 size={16} />
                                             </Button>
                                         </div>
@@ -282,7 +345,34 @@ export default function PackagesManagement() {
                     </Table>
                 )}
             </div>
-            <Toaster/>
+            <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+                <DialogContent className="bg-zinc-900 border-zinc-800 text-zinc-100 max-w-md">
+                    <DialogHeader>
+                        <div className="w-12 h-12 rounded-full bg-red-900/20 flex items-center justify-center text-red-500 mb-4">
+                            <AlertTriangle size={24} />
+                        </div>
+                        <DialogTitle>Delete Package</DialogTitle>
+                        <DialogDescription className="text-zinc-400 pt-2">
+                            Are you sure you want to delete this package? This action cannot be undone. Users currently on this plan will not be affected until they try to renew or change plans.
+                        </DialogDescription>
+                    </DialogHeader>
+                    <DialogFooter className="gap-2 pt-4">
+                        <Button variant="ghost" onClick={() => setIsDeleteDialogOpen(false)} disabled={isDeletingPackage}>
+                            Cancel
+                        </Button>
+                        <Button
+                            variant="destructive"
+                            className="bg-red-600 hover:bg-red-700 text-white font-bold"
+                            onClick={confirmDelete}
+                            disabled={isDeletingPackage}
+                        >
+                            {isDeletingPackage ? <Loader2 className="animate-spin mr-2" /> : 'Delete Package'}
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
+
+            <Toaster />
         </div>
     );
 }
