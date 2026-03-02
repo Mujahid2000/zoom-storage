@@ -45,6 +45,7 @@ const packageSchema = z.object({
     totalStorageMB: z.coerce.number().min(1).default(1024),
     filesPerFolder: z.coerce.number().min(1).default(100),
     allowedFileTypes: z.array(z.string()).default(["IMAGE", "VIDEO", "PDF", "AUDIO"]),
+    price: z.coerce.number().min(0).default(0),
 });
 
 type PackageFormValues = z.infer<typeof packageSchema>;
@@ -190,6 +191,19 @@ export default function PackagesManagement() {
                                     render={({ field }) => (
                                         <FormItem>
                                             <FormLabel>Files Per Folder</FormLabel>
+                                            <FormControl>
+                                                <Input type="number" {...field} className="bg-zinc-800 border-zinc-700" />
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                                <FormField
+                                    control={form.control}
+                                    name="price"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>Price</FormLabel>
                                             <FormControl>
                                                 <Input type="number" {...field} className="bg-zinc-800 border-zinc-700" />
                                             </FormControl>
