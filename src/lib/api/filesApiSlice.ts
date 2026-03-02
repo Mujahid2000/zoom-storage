@@ -48,7 +48,7 @@ export const filesApiSlice = apiSlice.injectEndpoints({
         renameFile: builder.mutation<unknown, { id: string; name: string; folderId: string | null }>({
             query: ({ id, name }) => ({
                 url: `/files/${id}`,
-                method: 'PATCH',
+                method: 'PUT',
                 body: { name },
             }),
             invalidatesTags: (result, error, { id, folderId }) => [
