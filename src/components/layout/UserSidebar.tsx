@@ -29,8 +29,10 @@ interface Subscription {
 }
 
 interface UserSidebarProps {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     usage?: any;
     subscription?: Subscription;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     fullSubscription?: any;
 }
 

@@ -94,7 +94,7 @@ export default function HistoryPage() {
                                                 )}
                                             </TableCell>
                                             <TableCell className="text-right text-zinc-100 text-sm italic">
-                                                {h.endDate ? format(new Date(h.endDate), 'PPP') : '-'}
+                                                {h.expiryDate ? format(new Date(h.expiryDate), 'PPP') : '-'}
                                             </TableCell>
                                         </TableRow>
                                     );

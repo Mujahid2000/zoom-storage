@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 
 import React, { useState, useEffect, useCallback } from 'react';
@@ -20,7 +21,7 @@ export default function DashboardLayout({
         try {
             const response = await api.get('/user/usage');
             const data = response.data.data; // ApiResponse.data
-
+            console.log(response);
             setUsage(data);
             setSubscription(data.package);
             setFullSubscription(data.subscription);
