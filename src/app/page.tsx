@@ -381,7 +381,7 @@ export default function Home() {
             </p>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-6 items-center">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-6 items-center place-content-center">
             {loadingPlans ? (
               <div className="col-span-3 py-20 text-center">
                 <div className="inline-block w-8 h-8 border-4 border-violet-500/30 border-t-violet-500 rounded-full animate-spin mb-4" />
@@ -480,7 +480,7 @@ export default function Home() {
               </p>
               <Link
                 href="/register"
-                className="inline-flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 rounded-2xl font-semibold text-white shadow-2xl shadow-violet-500/30 hover:shadow-violet-500/50 transition-all hover:-translate-y-0.5 duration-200"
+                className="inline-flex text-sm md:text-base items-center gap-2 px-8 py-4 bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 rounded-2xl font-semibold text-white shadow-2xl shadow-violet-500/30 hover:shadow-violet-500/50 transition-all hover:-translate-y-0.5 duration-200"
               >
                 Create Free Account
                 <svg viewBox="0 0 20 20" fill="currentColor" className="w-4 h-4">
