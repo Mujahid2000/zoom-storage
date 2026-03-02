@@ -22,9 +22,11 @@ export default function PlansPage() {
     const router = useRouter();
 
     const { data: packages = [], isLoading: packagesLoading } = useGetPackagesQuery();
+    console.log(packages);
     const { data: currentSub, isLoading: subLoading } = useGetCurrentSubscriptionQuery(undefined, {
         skip: !user
     });
+    console.log(currentSub);
     const [upgradeSubscription, { isLoading: isUpgrading }] = useUpgradeSubscriptionMutation();
 
 

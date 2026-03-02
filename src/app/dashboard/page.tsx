@@ -226,9 +226,9 @@ export default function UserDashboard() {
                 ))}
             </div>
 
-            <header className="h-16 border-b border-zinc-800 flex items-center justify-between px-0 mb-8 bg-transparent">
+            <header className="h-16 border-b border-zinc-800 flex flex-col md:flex-row gap-2 items-start justify-between px-0 mb-8 bg-transparent">
                 <div className="flex items-center gap-4 flex-1">
-                    <div className="relative w-full max-w-md">
+                    <div className="relative w-full md:max-w-md">
                         <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-500" size={16} />
                         <Input
                             placeholder="Search your files..."
