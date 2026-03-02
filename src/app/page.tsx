@@ -61,41 +61,7 @@ const features = [
   },
 ];
 
-const plans = [
-  {
-    name: "Starter",
-    price: "Free",
-    period: "",
-    desc: "Perfect for individuals getting started.",
-    storage: "5 GB",
-    features: ["5 GB storage", "Up to 3 users", "Basic file sharing", "Email support"],
-    cta: "Get Started",
-    href: "/register",
-    highlighted: false,
-  },
-  {
-    name: "Pro",
-    price: "$12",
-    period: "/mo",
-    desc: "For growing teams that need more power.",
-    storage: "1 TB",
-    features: ["1 TB storage", "Up to 25 users", "Advanced sharing & permissions", "Analytics dashboard", "Priority support"],
-    cta: "Start Free Trial",
-    href: "/register",
-    highlighted: true,
-  },
-  {
-    name: "Enterprise",
-    price: "$49",
-    period: "/mo",
-    desc: "Mission-critical storage for large teams.",
-    storage: "Unlimited",
-    features: ["Unlimited storage", "Unlimited users", "SSO & audit logs", "Dedicated account manager", "SLA & uptime guarantee"],
-    cta: "Contact Sales",
-    href: "/register",
-    highlighted: false,
-  },
-];
+// Static plans removed in favor of dynamic fetching
 
 const stats = [
   { value: "50K+", label: "Active Users" },
@@ -108,6 +74,26 @@ export default function Home() {
   const { user } = useAuth();
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const [dynamicPlans, setDynamicPlans] = useState<any[]>([]);
+  const [loadingPlans, setLoadingPlans] = useState(true);
+
+  useEffect(() => {
+    const fetchPlans = async () => {
+      try {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://backend-iota-inky-13.vercel.app/api'}/packages/public`);
+        const json = await res.json();
+        if (json.success) {
+          setDynamicPlans(json.data);
+        }
+      } catch (err) {
+        console.error("Failed to fetch plans:", err);
+      } finally {
+        setLoadingPlans(false);
+      }
+    };
+    fetchPlans();
+  }, []);
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 20);
@@ -396,50 +382,83 @@ export default function Home() {
           </div>
 
           <div className="grid md:grid-cols-3 gap-6 items-center">
-            {plans.map((plan) => (
-              <div
-                key={plan.name}
-                className={`relative rounded-2xl p-7 border transition-all duration-300 ${plan.highlighted
-                  ? "bg-gradient-to-b from-violet-600/20 to-indigo-600/10 border-violet-500/40 scale-105 shadow-2xl shadow-violet-500/20"
-                  : "bg-white/3 border-white/8 hover:border-white/15"
-                  }`}
-              >
-                {plan.highlighted && (
-                  <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 bg-gradient-to-r from-violet-600 to-indigo-600 text-white text-xs font-semibold px-4 py-1 rounded-full shadow-lg">
-                    Most Popular
-                  </div>
-                )}
-                <div className="mb-5">
-                  <div className="text-sm text-white/50 mb-1">{plan.name}</div>
-                  <div className="flex items-baseline gap-1 mb-1">
-                    <span className="text-4xl font-bold text-white">{plan.price}</span>
-                    {plan.period && <span className="text-white/40 text-sm">{plan.period}</span>}
-                  </div>
-                  <p className="text-sm text-white/40">{plan.desc}</p>
-                </div>
-
-                <ul className="space-y-3 mb-7">
-                  {plan.features.map((feat) => (
-                    <li key={feat} className="flex items-center gap-2.5 text-sm text-white/60">
-                      <svg viewBox="0 0 20 20" fill="currentColor" className="w-4 h-4 text-violet-400 flex-shrink-0">
-                        <path fillRule="evenodd" d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.05-.143z" clipRule="evenodd" />
-                      </svg>
-                      {feat}
-                    </li>
-                  ))}
-                </ul>
-
-                <Link
-                  href={plan.href}
-                  className={`block w-full text-center py-3 rounded-xl font-medium text-sm transition-all ${plan.highlighted
-                    ? "bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white shadow-lg shadow-violet-500/30"
-                    : "bg-white/8 hover:bg-white/12 text-white border border-white/10"
-                    }`}
-                >
-                  {plan.cta}
-                </Link>
+            {loadingPlans ? (
+              <div className="col-span-3 py-20 text-center">
+                <div className="inline-block w-8 h-8 border-4 border-violet-500/30 border-t-violet-500 rounded-full animate-spin mb-4" />
+                <p className="text-white/40">Loading plans...</p>
               </div>
-            ))}
+            ) : dynamicPlans.length > 0 ? (
+              dynamicPlans.map((plan, index) => {
+                const isFree = plan.price === 0;
+                // Highlight the first non-free plan, or the second plan if all are paid
+                const highlighted = index === (dynamicPlans.some(p => p.price === 0) ? 1 : 1);
+
+                return (
+                  <div
+                    key={plan.id}
+                    className={`relative rounded-2xl p-7 border transition-all duration-300 ${highlighted
+                      ? "bg-gradient-to-b from-violet-600/20 to-indigo-600/10 border-violet-500/40 scale-105 shadow-2xl shadow-violet-500/20"
+                      : "bg-white/3 border-white/8 hover:border-white/15"
+                      }`}
+                  >
+                    {highlighted && (
+                      <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 bg-gradient-to-r from-violet-600 to-indigo-600 text-white text-xs font-semibold px-4 py-1 rounded-full shadow-lg">
+                        Most Popular
+                      </div>
+                    )}
+                    <div className="mb-5">
+                      <div className="text-sm text-white/50 mb-1">{plan.name}</div>
+                      <div className="flex items-baseline gap-1 mb-1">
+                        <span className="text-4xl font-bold text-white">
+                          {isFree ? "Free" : `$${plan.price}`}
+                        </span>
+                        {!isFree && <span className="text-white/40 text-sm">/mo</span>}
+                      </div>
+                      <p className="text-sm text-white/40">
+                        {plan.totalStorageMB >= 1024
+                          ? `${(plan.totalStorageMB / 1024).toFixed(0)} TB`
+                          : `${plan.totalStorageMB} MB`} total storage
+                      </p>
+                    </div>
+
+                    <ul className="space-y-3 mb-7">
+                      <li className="flex items-center gap-2.5 text-sm text-white/60">
+                        <svg viewBox="0 0 20 20" fill="currentColor" className="w-4 h-4 text-violet-400 flex-shrink-0">
+                          <path fillRule="evenodd" d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.05-.143z" clipRule="evenodd" />
+                        </svg>
+                        {plan.totalFileLimit} files limit
+                      </li>
+                      <li className="flex items-center gap-2.5 text-sm text-white/60">
+                        <svg viewBox="0 0 20 20" fill="currentColor" className="w-4 h-4 text-violet-400 flex-shrink-0">
+                          <path fillRule="evenodd" d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.05-.143z" clipRule="evenodd" />
+                        </svg>
+                        {plan.maxFileSizeMB} MB max file size
+                      </li>
+                      <li className="flex items-center gap-2.5 text-sm text-white/60">
+                        <svg viewBox="0 0 20 20" fill="currentColor" className="w-4 h-4 text-violet-400 flex-shrink-0">
+                          <path fillRule="evenodd" d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.05-.143z" clipRule="evenodd" />
+                        </svg>
+                        {plan.maxFolders} folders included
+                      </li>
+                    </ul>
+
+                    <Link
+                      href="/register"
+                      className={`block w-full text-center py-3 rounded-xl font-medium text-sm transition-all ${highlighted
+                        ? "bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white shadow-lg shadow-violet-500/30"
+                        : "bg-white/8 hover:bg-white/12 text-white border border-white/10"
+                        }`}
+                    >
+                      {isFree ? "Get Started" : "Choose Plan"}
+                    </Link>
+                  </div>
+                );
+              })
+            ) : (
+              <div className="col-span-3 py-20 text-center text-white/40">
+                No plans available at the moment.
+              </div>
+            )}
           </div>
         </div>
       </section>
