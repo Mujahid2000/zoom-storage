@@ -5,7 +5,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { useAuth } from '../../context/AuthContext';
-import api from '../../utils/api';
+import { useRegisterMutation } from '../../lib/api/authApiSlice';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
@@ -21,7 +21,6 @@ import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { toast } from 'sonner';
 import { CheckCircle2, Copy, Loader2 } from 'lucide-react';
-import axios from 'axios';
 
 const registerSchema = z.object({
     email: z.string().email({ message: "Invalid email address" }),
@@ -34,12 +33,18 @@ const registerSchema = z.object({
 
 type RegisterFormValues = z.infer<typeof registerSchema>;
 
+interface RegisterResponse {
+    message?: string;
+    verificationToken?: string;
+}
+
 export default function RegisterPage() {
     const { user } = useAuth();
     const router = useRouter();
     const [isRegistered, setIsRegistered] = useState(false);
     const [verificationLink, setVerificationLink] = useState('');
-    const [loading, setLoading] = useState(false);
+
+    const [registerMutation, { isLoading: registerLoading }] = useRegisterMutation();
 
     React.useEffect(() => {
         if (user) {
@@ -57,12 +62,11 @@ export default function RegisterPage() {
     });
 
     const onSubmit = async (values: RegisterFormValues) => {
-        setLoading(true);
         try {
-            const { data } = await api.post('/auth/register', {
+            const data = await registerMutation({
                 email: values.email,
                 password: values.password,
-            });
+            }).unwrap() as RegisterResponse;
             toast.success(data.message || 'Account created successfully');
             if (data.verificationToken) {
                 const link = `https://zoom-storage.vercel.app/verify?token=${data.verificationToken}`;
@@ -70,13 +74,8 @@ export default function RegisterPage() {
             }
             setIsRegistered(true);
         } catch (err: unknown) {
-            if (axios.isAxiosError(err)) {
-                toast.error(err.response?.data?.error || 'Registration failed');
-            } else {
-                toast.error('An unexpected error occurred');
-            }
-        } finally {
-            setLoading(false);
+            const error = err as { data?: { message?: string } };
+            toast.error(error.data?.message || 'Registration failed');
         }
     };
 
@@ -188,8 +187,8 @@ export default function RegisterPage() {
                                     </FormItem>
                                 )}
                             />
-                            <Button type="submit" disabled={loading} className="w-full bg-zinc-100 text-zinc-900 hover:bg-zinc-200 font-bold">
-                                {loading ? <Loader2 className="animate-spin mr-2" /> : null}
+                            <Button type="submit" disabled={registerLoading} className="w-full bg-zinc-100 text-zinc-900 hover:bg-zinc-200 font-bold">
+                                {registerLoading ? <Loader2 className="animate-spin mr-2" /> : null}
                                 Register
                             </Button>
                         </form>

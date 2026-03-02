@@ -1,10 +1,10 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 
-import React, { useState, useEffect, useCallback } from 'react';
-import api from '../../../utils/api';
+import React from 'react';
 import { useAuth } from '../../../context/AuthContext';
 import { useRouter } from 'next/navigation';
+import { useGetPackagesQuery, useGetCurrentSubscriptionQuery, useUpgradeSubscriptionMutation } from '../../../lib/api/packagesApiSlice';
 import { Check, ArrowLeft, Zap, Shield, Crown, Gem } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
@@ -18,50 +18,27 @@ const tierIcons: Record<string, any> = {
 };
 
 export default function PlansPage() {
-    const [packages, setPackages] = useState<any[]>([]);
-    const [currentSub, setCurrentSub] = useState<any>(null);
     const { user, loading: authLoading } = useAuth();
     const router = useRouter();
 
-    const fetchPackages = useCallback(async () => {
-        try {
-            const { data } = await api.get('/packages');
-            setPackages(data);
-        } catch (err) {
-            console.error(err);
-        }
-    }, []);
+    const { data: packages = [], isLoading: packagesLoading } = useGetPackagesQuery();
+    const { data: currentSub, isLoading: subLoading } = useGetCurrentSubscriptionQuery(undefined, {
+        skip: !user
+    });
+    const [upgradeSubscription, { isLoading: isUpgrading }] = useUpgradeSubscriptionMutation();
 
-    const fetchCurrentSub = useCallback(async () => {
-        try {
-            const { data } = await api.get('/subscriptions/current');
-            setCurrentSub(data);
-        } catch (err) {
-            console.error(err);
-        }
-    }, []);
-
-    useEffect(() => {
-        if (user) {
-            queueMicrotask(() => {
-                fetchPackages();
-                fetchCurrentSub();
-            });
-        }
-    }, [user, fetchPackages, fetchCurrentSub]);
 
     const handleUpgrade = async (packageId: string) => {
         try {
-            await api.post('/subscriptions', { packageId });
+            await upgradeSubscription({ packageId }).unwrap();
             toast.success('Subscription updated successfully!');
-            fetchCurrentSub();
             router.push('/dashboard');
         } catch (err: any) {
-            toast.error(err.response?.data?.error || 'Failed to update subscription');
+            toast.error(err?.data?.message || 'Failed to update subscription');
         }
     };
 
-    if (authLoading) return <div className="min-h-screen bg-zinc-950 flex items-center justify-center text-zinc-100">Loading...</div>;
+    if (authLoading || packagesLoading || subLoading) return <div className="min-h-screen bg-zinc-950 flex items-center justify-center text-zinc-100">Loading...</div>;
 
     return (
         <div className="min-h-screen bg-zinc-950 text-zinc-100 p-8">
@@ -125,13 +102,13 @@ export default function PlansPage() {
                                 <CardFooter className="px-8 pb-8">
                                     <Button
                                         onClick={() => handleUpgrade(pkg.id)}
-                                        disabled={isCurrent}
+                                        disabled={isCurrent || isUpgrading}
                                         className={`w-full py-6 rounded-xl font-bold transition-all ${isCurrent
                                             ? 'bg-zinc-800 text-zinc-500 cursor-not-allowed border border-zinc-700'
                                             : 'bg-zinc-100 text-zinc-900 hover:bg-zinc-200 shadow-lg shadow-zinc-100/10'
                                             }`}
                                     >
-                                        {isCurrent ? 'Current Plan' : 'Upgrade Now'}
+                                        {isUpgrading ? 'Upgrading...' : isCurrent ? 'Current Plan' : 'Upgrade Now'}
                                     </Button>
                                 </CardFooter>
                             </Card>

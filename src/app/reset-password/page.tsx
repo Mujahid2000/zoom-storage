@@ -5,7 +5,7 @@ import { useSearchParams, useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import api from '../../utils/api';
+import { useResetPasswordMutation } from '../../lib/api/authApiSlice';
 import { Button } from '@/components/ui/button';
 import {
     Form,
@@ -34,7 +34,8 @@ function ResetPasswordContent() {
     const searchParams = useSearchParams();
     const router = useRouter();
     const token = searchParams.get('token');
-    const [status, setStatus] = useState<'idle' | 'loading' | 'success'>('idle');
+    const [status, setStatus] = useState<'idle' | 'success'>('idle');
+    const [resetPassword, { isLoading }] = useResetPasswordMutation();
 
     const form = useForm<ResetPasswordValues>({
         resolver: zodResolver(resetPasswordSchema),
@@ -47,19 +48,17 @@ function ResetPasswordContent() {
     const onSubmit = async (values: ResetPasswordValues) => {
         if (!token) return toast.error('Invalid reset link');
 
-        setStatus('loading');
         try {
-            await api.post('/auth/reset-password', {
+            await resetPassword({
                 token,
                 newPassword: values.password,
-            });
+            }).unwrap();
             setStatus('success');
             toast.success('Password reset successfully');
             setTimeout(() => router.push('/login'), 2000);
         } catch (err: unknown) {
-            setStatus('idle');
-            const error = err as { response?: { data?: { error?: string } } };
-            toast.error(error.response?.data?.error || 'Failed to reset password');
+            const error = err as { data?: { message?: string } };
+            toast.error(error.data?.message || 'Failed to reset password');
         }
     };
 
@@ -125,10 +124,10 @@ function ResetPasswordContent() {
                             />
                             <Button
                                 type="submit"
-                                disabled={status === 'loading'}
+                                disabled={isLoading}
                                 className="w-full bg-zinc-100 text-zinc-900 hover:bg-zinc-200 font-bold"
                             >
-                                {status === 'loading' ? 'Updating...' : 'Reset Password'}
+                                {isLoading ? 'Updating...' : 'Reset Password'}
                             </Button>
                         </form>
                     </Form>

@@ -1,10 +1,9 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 
-import React, { useState, useEffect, useCallback } from 'react';
-import api from '../../../utils/api';
+import React from 'react';
 import { useAuth } from '../../../context/AuthContext';
 import { useRouter } from 'next/navigation';
+import { useGetSubscriptionHistoryQuery } from '../../../lib/api/packagesApiSlice';
 import { History, ArrowLeft, Calendar, Shield, Crown, Gem, Zap, LucideIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
@@ -26,29 +25,15 @@ const tierIcons: Record<string, LucideIcon> = {
 };
 
 export default function HistoryPage() {
-    const [history, setHistory] = useState<any[]>([]);
-    const [loading, setLoading] = useState(true);
     const { user, loading: authLoading } = useAuth();
     const router = useRouter();
 
-    const fetchHistory = useCallback(async () => {
-        try {
-            const { data } = await api.get('/subscriptions/history');
-            setHistory(data);
-        } catch (err) {
-            console.error(err);
-        } finally {
-            setLoading(false);
-        }
-    }, []);
+    const { data: history = [], isLoading: historyLoading } = useGetSubscriptionHistoryQuery(undefined, {
+        skip: !user
+    });
 
-    useEffect(() => {
-        if (user) {
-            fetchHistory();
-        }
-    }, [user, fetchHistory]);
 
-    if (authLoading || loading) return <div className="min-h-screen bg-zinc-950 flex items-center justify-center text-zinc-100">Loading...</div>;
+    if (authLoading || historyLoading) return <div className="min-h-screen bg-zinc-950 flex items-center justify-center text-zinc-100">Loading...</div>;
 
     return (
         <div className="min-h-screen bg-zinc-950 text-zinc-100 p-8">

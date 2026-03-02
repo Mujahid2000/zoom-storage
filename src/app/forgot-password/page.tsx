@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import api from '../../utils/api';
+import { useForgotPasswordMutation } from '../../lib/api/authApiSlice';
 import { Button } from '@/components/ui/button';
 import {
     Form,
@@ -18,8 +18,7 @@ import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { toast } from 'sonner';
 import Link from 'next/link';
-import { ArrowLeft, MailCheck } from 'lucide-react';
-import axios from 'axios';
+import { ArrowLeft, MailCheck, Loader2 } from 'lucide-react';
 
 const forgotPasswordSchema = z.object({
     email: z.string().email({ message: "Invalid email address" }),
@@ -29,6 +28,7 @@ type ForgotPasswordValues = z.infer<typeof forgotPasswordSchema>;
 
 export default function ForgotPasswordPage() {
     const [submitted, setSubmitted] = useState(false);
+    const [forgotPassword, { isLoading }] = useForgotPasswordMutation();
     const form = useForm<ForgotPasswordValues>({
         resolver: zodResolver(forgotPasswordSchema),
         defaultValues: { email: '' },
@@ -36,15 +36,12 @@ export default function ForgotPasswordPage() {
 
     const onSubmit = async (values: ForgotPasswordValues) => {
         try {
-            await api.post('/auth/forgot-password', values);
+            await forgotPassword(values).unwrap();
             setSubmitted(true);
             toast.success('Reset link sent to your email');
         } catch (err: unknown) {
-            if (axios.isAxiosError(err)) {
-                toast.error(err.response?.data?.error || 'Failed to send reset link');
-            } else {
-                toast.error('An unexpected error occurred');
-            }
+            const error = err as { data?: { message?: string } };
+            toast.error(error.data?.message || 'Failed to send reset link');
         }
     };
 
@@ -78,7 +75,8 @@ export default function ForgotPasswordPage() {
                                         </FormItem>
                                     )}
                                 />
-                                <Button type="submit" className="w-full bg-zinc-100 text-zinc-900 hover:bg-zinc-200 font-bold">
+                                <Button type="submit" disabled={isLoading} className="w-full bg-zinc-100 text-zinc-900 hover:bg-zinc-200 font-bold">
+                                    {isLoading ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
                                     Send Reset Link
                                 </Button>
                             </form>

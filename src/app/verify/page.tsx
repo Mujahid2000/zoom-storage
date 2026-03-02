@@ -2,8 +2,13 @@
 
 import React, { useEffect, useState, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
-import api from '../../utils/api';
+import { useVerifyEmailMutation, useResendVerificationMutation } from '../../lib/api/authApiSlice';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+
+interface VerifyResponse {
+    message?: string;
+    verificationToken?: string;
+}
 import { CheckCircle2, XCircle, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -17,7 +22,9 @@ function VerifyContent() {
     const [manualToken, setManualToken] = useState('');
     const [emailForResend, setEmailForResend] = useState('');
     const [showResend, setShowResend] = useState(false);
-    const [resending, setResending] = useState(false);
+
+    const [verifyEmail] = useVerifyEmailMutation();
+    const [resendVerification, { isLoading: isResending }] = useResendVerificationMutation();
     const [isVerifyingManual, setIsVerifyingManual] = useState(false);
 
     useEffect(() => {
@@ -31,33 +38,32 @@ function VerifyContent() {
         const verify = async () => {
             setStatus('loading');
             try {
-                const { data } = await api.post('/auth/verify-email', { token });
+                const data = await verifyEmail({ token }).unwrap() as VerifyResponse;
                 setStatus('success');
-                setMessage(data.message);
+                setMessage(data.message || 'Email verified successfully');
             } catch (err: unknown) {
+                const error = err as { data?: { message?: string } };
                 setStatus('error');
-                const errorMsg = (err as { response?: { data?: { error?: string } } }).response?.data?.error || 'Verification failed. The token might be expired or invalid.';
-                setMessage(errorMsg);
+                setMessage(error.data?.message || 'Verification failed. The token might be expired or invalid.');
             }
         };
 
         verify();
-    }, [searchParams]);
+    }, [searchParams, verifyEmail]);
 
     const handleManualVerify = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!manualToken) return;
 
         setIsVerifyingManual(true);
-        // We don't set status to 'loading' here to avoid hiding the manual input form prematurely
         try {
-            const { data } = await api.post('/auth/verify-email', { token: manualToken });
+            const data = await verifyEmail({ token: manualToken }).unwrap() as VerifyResponse;
             setStatus('success');
-            setMessage(data.message);
+            setMessage(data.message || 'Email verified successfully');
         } catch (err: unknown) {
+            const error = err as { data?: { message?: string } };
             setStatus('error');
-            const errorMsg = (err as { response?: { data?: { error?: string } } }).response?.data?.error || 'Verification failed.';
-            setMessage(errorMsg);
+            setMessage(error.data?.message || 'Verification failed.');
         } finally {
             setIsVerifyingManual(false);
         }
@@ -69,20 +75,17 @@ function VerifyContent() {
             toast.error('Please enter your email');
             return;
         }
-        setResending(true);
         try {
-            const { data } = await api.post('/auth/resend-verification', { email: emailForResend });
-            toast.success(data.message);
+            const data = await resendVerification({ email: emailForResend }).unwrap() as VerifyResponse;
+            toast.success(data.message || 'Verification email resent');
             if (data.verificationToken) {
                 console.log(`New Verification Link: https://zoom-storage.vercel.app/verify?token=${data.verificationToken}`);
                 toast.info('Dev Mode: New link logged to console');
             }
             setShowResend(false);
         } catch (err: unknown) {
-            const errorMsg = (err as { response?: { data?: { error?: string } } }).response?.data?.error || 'Failed to resend verification';
-            toast.error(errorMsg);
-        } finally {
-            setResending(false);
+            const error = err as { data?: { message?: string } };
+            toast.error(error.data?.message || 'Failed to resend verification');
         }
     };
 
@@ -161,10 +164,10 @@ function VerifyContent() {
                             </Button>
                             <Button
                                 type="submit"
-                                disabled={resending}
+                                disabled={isResending}
                                 className="flex-1 bg-zinc-100 text-zinc-900 hover:bg-zinc-200 font-bold"
                             >
-                                {resending ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Resend Email'}
+                                {isResending ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Resend Email'}
                             </Button>
                         </div>
                     </form>

@@ -6,7 +6,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { useAuth } from '../../context/AuthContext';
 import { useRouter } from 'next/navigation';
-import api from '../../utils/api';
+import { useLoginMutation, useResendVerificationMutation } from '../../lib/api/authApiSlice';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import {
@@ -20,7 +20,6 @@ import {
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { toast } from 'sonner';
-import axios from 'axios';
 
 const loginSchema = z.object({
     email: z.string().email({ message: "Invalid email address" }),
@@ -29,11 +28,26 @@ const loginSchema = z.object({
 
 type LoginFormValues = z.infer<typeof loginSchema>;
 
+interface LoginResponse {
+    data: {
+        token: string;
+        user: {
+            id: string;
+            email: string;
+            role: 'USER' | 'ADMIN';
+        };
+    };
+    message?: string;
+    verificationToken?: string;
+}
+
 export default function LoginPage() {
     const { user, login } = useAuth();
     const router = useRouter();
     const [needsVerification, setNeedsVerification] = React.useState(false);
-    const [loading, setLoading] = React.useState(false);
+
+    const [loginMutation, { isLoading: isLoginLoading }] = useLoginMutation();
+    const [resendVerification, { isLoading: isResending }] = useResendVerificationMutation();
 
     React.useEffect(() => {
         if (user) {
@@ -55,41 +69,33 @@ export default function LoginPage() {
             toast.error('Please enter your email first');
             return;
         }
-        setLoading(true);
         try {
-            const { data } = await api.post('/auth/resend-verification', { email });
-            toast.success(data.message);
+            const data = await resendVerification({ email }).unwrap() as LoginResponse;
+            toast.success(data.message || 'Verification email resent');
             if (data.verificationToken) {
                 console.log(`New Verification Link: https://zoom-storage.vercel.app/verify?token=${data.verificationToken}`);
                 toast.info('Dev Mode: New link logged to console');
             }
-        } catch (err: unknown) {
-            if (axios.isAxiosError(err)) {
-                toast.error(err.response?.data?.error || 'Failed to resend verification');
-            } else {
-                toast.error('An unexpected error occurred');
-            }
-        } finally {
-            setLoading(false);
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        } catch (err: any) {
+            toast.error(err?.data?.message || 'Failed to resend verification');
         }
     };
 
     const onSubmit = async (values: LoginFormValues) => {
-        setLoading(true);
         try {
             setNeedsVerification(false);
-            const { data } = await api.post('/auth/login', values);
-            login(data.token, data.user);
+            const data = await loginMutation(values).unwrap() as LoginResponse;
+            // console.log(data.data.token);
+            login(data.data.token, data.data.user);
             toast.success('Login successful');
         } catch (err: unknown) {
-            const axiosError = err as { response?: { data?: { error?: string } } };
-            const errorMsg = axiosError.response?.data?.error || (err instanceof Error ? err.message : 'Login failed');
+            const error = err as { data?: { message?: string } };
+            const errorMsg = error.data?.message || 'Login failed';
             toast.error(errorMsg);
             if (errorMsg.toLowerCase().includes('verify your email')) {
                 setNeedsVerification(true);
             }
-        } finally {
-            setLoading(false);
         }
     };
 
@@ -149,8 +155,8 @@ export default function LoginPage() {
                                     )}
                                 />
                             </div>
-                            <Button type="submit" disabled={loading} className="w-full bg-zinc-100 text-zinc-900 hover:bg-zinc-200 font-bold">
-                                {loading ? 'Processing...' : 'Login'}
+                            <Button type="submit" disabled={isLoginLoading} className="w-full bg-zinc-100 text-zinc-900 hover:bg-zinc-200 font-bold">
+                                {isLoginLoading ? 'Processing...' : 'Login'}
                             </Button>
                             {needsVerification && (
                                 <div className="mt-4 p-4 bg-orange-950/20 border border-orange-900/50 rounded-lg text-sm">
@@ -163,9 +169,9 @@ export default function LoginPage() {
                                             size="sm"
                                             className="w-full border-orange-900/50 text-orange-200 hover:bg-orange-950/30 font-semibold"
                                             onClick={handleResendVerification}
-                                            disabled={loading}
+                                            disabled={isResending}
                                         >
-                                            Resend Link
+                                            {isResending ? 'Resending...' : 'Resend Link'}
                                         </Button>
                                         <Button
                                             type="button"
