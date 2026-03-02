@@ -19,7 +19,7 @@ import {
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { toast } from 'sonner';
+import { toast, Toaster } from 'sonner';
 import { CheckCircle2, Copy, Loader2 } from 'lucide-react';
 
 const registerSchema = z.object({
@@ -203,6 +203,7 @@ export default function RegisterPage() {
                     </p>
                 </CardFooter>
             </Card>
+            <Toaster/>
         </div>
     );
 }

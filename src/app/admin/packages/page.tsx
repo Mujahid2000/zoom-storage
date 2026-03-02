@@ -34,6 +34,7 @@ import { useForm, SubmitHandler, Resolver } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { toast } from 'sonner';
+import { Toaster } from 'sonner';
 
 const packageSchema = z.object({
     name: z.string().min(2, "Name must be at least 2 characters"),
@@ -267,6 +268,7 @@ export default function PackagesManagement() {
                     </Table>
                 )}
             </div>
+            <Toaster/>
         </div>
     );
 }

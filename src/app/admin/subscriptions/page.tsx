@@ -10,6 +10,7 @@ import {
     TableRow,
 } from '@/components/ui/table';
 import { Subscription } from '@/lib/api/packagesApiSlice';
+import { Toaster } from 'sonner';
 
 export default function SubscriptionsManagement() {
     const { data: subscriptions = [], isLoading: subsLoading } = useGetAdminSubscriptionsQuery();
@@ -70,6 +71,7 @@ export default function SubscriptionsManagement() {
                     </Table>
                 )}
             </div>
+            <Toaster/>
         </div>
     );
 }

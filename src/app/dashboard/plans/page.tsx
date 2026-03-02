@@ -8,7 +8,7 @@ import { useGetPackagesQuery, useGetCurrentSubscriptionQuery, useUpgradeSubscrip
 import { Check, ArrowLeft, Zap, Shield, Crown, Gem } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { toast } from 'sonner';
+import { toast, Toaster } from 'sonner';
 
 const tierIcons: Record<string, any> = {
     Free: Zap,
@@ -116,6 +116,7 @@ export default function PlansPage() {
                     })}
                 </div>
             </div>
+            <Toaster/>
         </div>
     );
 }

@@ -11,7 +11,7 @@ import {
     TableHeader,
     TableRow,
 } from '@/components/ui/table';
-import { toast } from 'sonner';
+import { toast, Toaster } from 'sonner';
 
 export default function UsersManagement() {
     const { data: users = [], isLoading: usersLoading } = useGetAdminUsersQuery();
@@ -106,6 +106,7 @@ export default function UsersManagement() {
                     </Table>
                 )}
             </div>
+            <Toaster/>
         </div>
     );
 }

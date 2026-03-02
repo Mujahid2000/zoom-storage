@@ -16,6 +16,7 @@ import {
     TableRow,
 } from '@/components/ui/table';
 import { format } from 'date-fns';
+import { Toaster } from 'sonner';
 
 const tierIcons: Record<string, LucideIcon> = {
     Free: Zap,
@@ -108,6 +109,7 @@ export default function HistoryPage() {
                     </CardContent>
                 </Card>
             </div>
+            <Toaster/>
         </div>
     );
 }

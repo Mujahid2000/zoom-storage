@@ -5,7 +5,7 @@ import { ShieldCheck, Database, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import { toast } from 'sonner';
+import { toast, Toaster } from 'sonner';
 
 export default function SystemConfigManagement() {
     const { data: systemConfig, isLoading: configLoading } = useGetSystemConfigQuery();
@@ -97,6 +97,7 @@ export default function SystemConfigManagement() {
                     </div>
                 </Card>
             </div>
+            <Toaster/>
         </div>
     );
 }
