@@ -72,7 +72,7 @@ export default function UserDashboard() {
     const [uploadFile] = useUploadFileMutation();
     const [deleteFile] = useDeleteFileMutation();
     const [renameFile] = useRenameFileMutation();
-    const [deleteFolder] = useDeleteFolderMutation();
+    const [deleteFolder, { isLoading: isDeletingFolder }] = useDeleteFolderMutation();
     const [renameFolder] = useRenameFolderMutation();
 
     const [isFolderDialogOpen, setIsFolderDialogOpen] = useState(false);
@@ -580,13 +580,13 @@ export default function UserDashboard() {
                         </DialogDescription>
                     </DialogHeader>
                     <DialogFooter className="gap-2 sm:gap-0 mt-2">
-                        <Button variant="ghost" onClick={() => setIsDeleteDialogOpen(false)}>Cancel</Button>
+                        <Button variant="ghost" onClick={() => setIsDeleteDialogOpen(false)} disabled={isDeletingFolder}>Cancel</Button>
                         <Button
                             variant="destructive"
                             onClick={handleDelete}
                             className="bg-red-600 hover:bg-red-700 text-white font-bold"
                         >
-                            Yes, Delete
+                            {isDeletingFolder ? <Loader2 className="animate-spin mr-2" /> : 'Yes, Delete'}
                         </Button>
                     </DialogFooter>
                 </DialogContent>
