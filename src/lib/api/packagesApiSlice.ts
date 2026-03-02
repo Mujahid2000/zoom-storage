@@ -30,8 +30,9 @@ export interface Subscription {
 export const packagesApiSlice = apiSlice.injectEndpoints({
     endpoints: (builder) => ({
         getPackages: builder.query<Package[], void>({
-            query: () => '/packages',
-            transformResponse: (response: { data: Package[] }) => response.data,
+            query: () => '/packages/all',
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            transformResponse: (response: any) => response.data,
             providesTags: ['Package'],
         }),
         getCurrentSubscription: builder.query<Subscription, void>({
