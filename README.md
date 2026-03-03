@@ -1,36 +1,65 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Zoom Cloud - Frontend Application
 
-## Getting Started
+Zoom Cloud is a premium SaaS Cloud Storage web application built with **Next.js 15**. It offers a sleek, modern user interface, real-time feedback, and full responsiveness across all devices.
 
-First, run the development server:
+## ✨ Key Features
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+- **Modern & Premium UI**: Designed with a focus on aesthetics, featuring **Glassmorphism**, smooth transitions, and a curated dark theme.
+- **Full Responsiveness**: A completely redesigned sidebar and header system for a seamless experience on mobile, tablet, and desktop devices.
+- **Interactive Dashboard**:
+  - File and folder management with intuitive navigation.
+  - Real-time storage usage tracking via dynamic progress bars.
+  - Integrated billing and subscription history views.
+- **Admin Portal**:
+  - Advanced package management tools.
+  - Comprehensive user monitoring and subscription tracking.
+  - Global system configuration controls.
+- **Performance Optimized**: Built with Next.js for server-side rendering and static optimization.
 
-Open [https://zoom-storage.vercel.app](https://zoom-storage.vercel.app) with your browser to see the result.
+## 🛠️ Tech Stack
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+- **Framework**: Next.js 15+ (App Router)
+- **Styling**: Tailwind CSS 4
+- **Components**: Radix UI & Lucide React
+- **State Management**: Redux Toolkit
+- **Data Fetching**: Axios & RTK Query
+- **Validation**: Zod & React Hook Form
+- **Toasts**: Sonner for elegant notifications.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## ⚙️ Development Setup
 
-## Learn More
+1. **Clone the repository**:
+   ```bash
+   git clone <repository-url>
+   cd frontend
+   ```
 
-To learn more about Next.js, take a look at the following resources:
+2. **Install dependencies**:
+   ```bash
+   npm install
+   ```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+3. **Configure Environment**:
+   Create a `.env.local` file and add:
+   ```env
+   NEXT_PUBLIC_API_URL="http://localhost:5000/api"
+   ```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+4. **Run the development server**:
+   ```bash
+   npm run dev
+   ```
 
-## Deploy on Vercel
+## 📱 Responsive Implementation
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+The sidebar is implemented as a **Sheet (Drawer)** on mobile devices, providing a native-app feel. Desktop users enjoy a persistent, organized navigation system. 
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+The layout system is built with **Flexbox** and **Grid** to adapt fluidly to any screen size.
+
+## 🏗️ Architecture
+
+- **`src/app`**: Contains all pages and layout logic following the Next.js App Router pattern.
+- **`src/components`**: Modular UI components organized by feature area (layout, ui, etc.).
+- **`src/context`**: React Context providers for global state like authentication.
+- **`src/utils`**: Utility functions and API service configurations.
+- **`src/store`**: Redux Toolkit store and API slices for state management.
