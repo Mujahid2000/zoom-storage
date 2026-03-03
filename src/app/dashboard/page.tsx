@@ -187,7 +187,7 @@ export default function UserDashboard() {
     if (!user) return null;
 
     return (
-        <div className="p-8">
+        <div className="p-4">
             <div className="flex items-center gap-2 text-sm text-zinc-500 mb-6 bg-zinc-900/50 p-3 rounded-lg border border-zinc-800 w-fit">
                 <Home size={14} className="cursor-pointer hover:text-zinc-100" onClick={() => setCurrentFolderId(null)} />
                 <ChevronRight size={14} />
@@ -226,7 +226,7 @@ export default function UserDashboard() {
                 ))}
             </div>
 
-            <header className="h-16 border-b border-zinc-800 flex flex-col md:flex-row gap-2 items-start justify-between px-0 mb-8 bg-transparent">
+            <header className="h-16 sm:border-b border-zinc-800 flex flex-col md:flex-row gap-2 items-start justify-between px-0 mb-8 bg-transparent">
                 <div className="flex items-center gap-4 flex-1">
                     <div className="relative w-full md:max-w-md">
                         <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-500" size={16} />

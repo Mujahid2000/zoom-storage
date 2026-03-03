@@ -43,7 +43,7 @@ export default function PlansPage() {
     if (authLoading || packagesLoading || subLoading) return <div className="min-h-screen bg-zinc-950 flex items-center justify-center text-zinc-100">Loading...</div>;
 
     return (
-        <div className="min-h-screen bg-zinc-950 text-zinc-100 p-8">
+        <div className="min-h-screen bg-zinc-950 text-zinc-100 p-4">
             <div className="max-w-6xl mx-auto">
                 <div className="mb-10">
                     <Button variant="ghost" onClick={() => router.back()} className="text-zinc-400 hover:text-black gap-2 mb-6">

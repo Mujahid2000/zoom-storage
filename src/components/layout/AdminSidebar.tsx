@@ -13,10 +13,12 @@ import {
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/context/AuthContext';
 
-export function AdminSidebar() {
-    const { logout } = useAuth();
-    const pathname = usePathname();
+interface AdminSidebarContentProps {
+    pathname: string;
+    logout: () => void;
+}
 
+function AdminSidebarContent({ pathname, logout }: AdminSidebarContentProps) {
     const menuItems = [
         { icon: Database, label: 'Packages', href: '/admin/packages', active: pathname === '/admin/packages' },
         { icon: Users, label: 'Users', href: '/admin/users', active: pathname === '/admin/users' },
@@ -25,7 +27,7 @@ export function AdminSidebar() {
     ];
 
     return (
-        <aside className="w-64 bg-zinc-900 border-r border-zinc-800 p-6 hidden md:flex flex-col h-screen sticky top-0">
+        <>
             <div className="flex items-center gap-2 mb-10 px-2">
                 <div className="bg-orange-500 text-white p-1.5 rounded">
                     <ShieldCheck size={20} />
@@ -38,7 +40,7 @@ export function AdminSidebar() {
                     <Link key={item.href} href={item.href}>
                         <Button
                             variant="ghost"
-                            className={`w-full hover:bg-gray-900 hover:text-zinc-100 justify-start gap-3 ${item.active ? 'bg-zinc-800 text-zinc-100' : 'text-zinc-400 hover:text-zinc-100'}`}
+                            className={`w-full hover:bg-zinc-800 hover:text-zinc-100 justify-start gap-3 ${item.active ? 'bg-zinc-800 text-zinc-100' : 'text-zinc-400 hover:text-zinc-100'}`}
                         >
                             <item.icon size={18} /> {item.label}
                         </Button>
@@ -51,6 +53,28 @@ export function AdminSidebar() {
                     <LogOut size={18} /> Logout
                 </Button>
             </div>
+        </>
+    );
+}
+
+export function AdminSidebar() {
+    const { logout } = useAuth();
+    const pathname = usePathname();
+
+    return (
+        <aside className="w-64 bg-zinc-900 border-r border-zinc-800 p-6 hidden md:flex flex-col h-screen sticky top-0">
+            <AdminSidebarContent pathname={pathname} logout={logout} />
         </aside>
+    );
+}
+
+export function AdminMobileSidebar() {
+    const { logout } = useAuth();
+    const pathname = usePathname();
+
+    return (
+        <div className="flex flex-col h-full py-4">
+            <AdminSidebarContent pathname={pathname} logout={logout} />
+        </div>
     );
 }

@@ -125,12 +125,12 @@ export default function PackagesManagement() {
 
     return (
         <div>
-            <header className="flex justify-between items-center mb-10 bg-zinc-900/50 p-6 rounded-2xl border border-zinc-800">
-                <div>
-                    <h1 className="text-3xl font-extrabold tracking-tight capitalize">
+            <header className="flex flex-col md:flex-row justify-between gap-3 md:items-center mb-10 bg-zinc-900/50 p-6 rounded-md border border-zinc-800">
+                <div className="flex flex-col gap-1">
+                    <h1 className="text-xl md:text-3xl font-extrabold tracking-tight capitalize">
                         Packages Management
                     </h1>
-                    <p className="text-zinc-500 mt-1">
+                    <p className="text-zinc-500 mt-1 text-sm md:text-base">
                         Configure and manage your service packages
                     </p>
                 </div>
@@ -275,7 +275,7 @@ export default function PackagesManagement() {
                 </Dialog>
             </header>
 
-            <div className="bg-zinc-900/40 rounded-2xl border border-zinc-800 overflow-hidden shadow-2xl">
+            <div className="bg-zinc-900/40 rounded-md border border-zinc-800 overflow-hidden shadow-2xl">
                 {packagesLoading ? (
                     <div className="h-60 flex items-center justify-center italic text-zinc-500 bg-zinc-900/40 rounded-2xl border border-zinc-800">Loading data...</div>
                 ) : (

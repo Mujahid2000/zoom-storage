@@ -4,7 +4,10 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import api from '@/utils/api';
-import { UserSidebar } from '@/components/layout/UserSidebar';
+import { UserSidebar, UserMobileSidebar } from '@/components/layout/UserSidebar';
+import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
+import { Button } from '@/components/ui/button';
+import { Menu } from 'lucide-react';
 
 export default function DashboardLayout({
     children,
@@ -50,6 +53,24 @@ export default function DashboardLayout({
         <div className="min-h-screen bg-zinc-950 text-zinc-100 flex relative">
             <UserSidebar usage={usage} subscription={subscription} fullSubscription={fullSubscription} />
             <main className="flex-1 flex flex-col min-w-0 overflow-auto relative">
+                {/* Mobile Header */}
+                <header className="md:hidden flex items-center justify-between p-4 border-b border-zinc-800 bg-zinc-900/50 backdrop-blur-md sticky top-0 z-40">
+                    <div className="flex items-center gap-2">
+                       <Sheet>
+                        <SheetTrigger asChild>
+                            <Button variant="ghost" size="icon" className="text-zinc-100">
+                                <Menu size={24} />
+                            </Button>
+                        </SheetTrigger>
+                        <SheetContent side="left" className="p-0 w-72 bg-zinc-900 border-r border-zinc-800">
+                            <UserMobileSidebar usage={usage} subscription={subscription} fullSubscription={fullSubscription} />
+                        </SheetContent>
+                    </Sheet>
+                        <span className="font-bold">Zoom Cloud</span>
+                    </div>
+                    
+                </header>
+
                 {isExpired && (
                     <div className="absolute inset-0 z-50 flex items-center justify-center bg-zinc-950/80 backdrop-blur-sm p-6 text-center">
                         <div className="max-w-md bg-zinc-900 border border-zinc-800 p-8 rounded-2xl shadow-2xl">

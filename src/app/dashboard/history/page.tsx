@@ -37,7 +37,7 @@ export default function HistoryPage() {
     if (authLoading || historyLoading) return <div className="min-h-screen bg-zinc-950 flex items-center justify-center text-zinc-100">Loading...</div>;
 
     return (
-        <div className="min-h-screen bg-zinc-950 text-zinc-100 p-8">
+        <div className="min-h-screen bg-zinc-950 text-zinc-100 p-4">
             <div className="max-w-4xl mx-auto">
                 <div className="mb-10 flex flex-col items-center">
                     <Button variant="ghost" onClick={() => router.push('/dashboard')} className="text-zinc-400 hover:text-zinc-100 gap-2 mb-6 self-start">

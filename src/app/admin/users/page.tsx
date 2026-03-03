@@ -41,18 +41,18 @@ export default function UsersManagement() {
 
     return (
         <div>
-            <header className="flex justify-between items-center mb-10 bg-zinc-900/50 p-6 rounded-2xl border border-zinc-800">
+            <header className="flex justify-between items-center mb-10 bg-zinc-900/50 p-6 rounded-  md border border-zinc-800">
                 <div>
-                    <h1 className="text-3xl font-extrabold tracking-tight capitalize">
+                    <h1 className="text-xl md:text-3xl font-extrabold tracking-tight capitalize">
                         Users Management
                     </h1>
-                    <p className="text-zinc-500 mt-1">
+                    <p className="text-zinc-500 mt-1 text-sm md:text-base">
                         Manage system users and their verification status
                     </p>
                 </div>
             </header>
 
-            <div className="bg-zinc-900/40 rounded-2xl border border-zinc-800 overflow-hidden shadow-2xl">
+            <div className="bg-zinc-900/40 rounded-md border border-zinc-800 overflow-hidden shadow-2xl">
                 {usersLoading ? (
                     <div className="h-60 flex items-center justify-center italic text-zinc-500 bg-zinc-900/40 rounded-2xl border border-zinc-800">Loading data...</div>
                 ) : (

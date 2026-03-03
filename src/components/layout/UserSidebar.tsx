@@ -8,20 +8,11 @@ import {
     Folder,
     CreditCard,
     History as HistoryIcon,
-    Settings,
     LogOut
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useAuth } from '@/context/AuthContext';
-
-interface Usage {
-    usage?: {
-        storageMB: number;
-        storagePercent: number;
-        filesCount: number;
-    };
-}
 
 interface Subscription {
     name: string;
@@ -36,24 +27,30 @@ interface UserSidebarProps {
     fullSubscription?: any;
 }
 
-export function UserSidebar({ usage, subscription, fullSubscription }: UserSidebarProps) {
-    const { logout } = useAuth();
-    const pathname = usePathname();
+interface SidebarContentProps {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    usage?: any;
+    subscription?: Subscription;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    fullSubscription?: any;
+    pathname: string;
+    logout: () => void;
+}
 
+function SidebarContent({ usage, subscription, fullSubscription, pathname, logout }: SidebarContentProps) {
     const menuItems = [
         { icon: Folder, label: 'My Files', href: '/dashboard', active: pathname === '/dashboard' },
         { icon: CreditCard, label: 'Plans & Billing', href: '/dashboard/plans', active: pathname === '/dashboard/plans' },
         { icon: HistoryIcon, label: 'Billing History', href: '/dashboard/history', active: pathname === '/dashboard/history' },
-        // { icon: Settings, label: 'Settings', href: '/dashboard/settings', active: pathname === '/dashboard/settings' },
     ];
 
     return (
-        <aside className="w-64 bg-zinc-900 border-r border-zinc-800 p-6 flex-col hidden md:flex h-screen sticky top-0">
+        <>
             <div className="flex items-center gap-2 mb-10 px-2">
                 <div className="bg-zinc-100 text-zinc-900 p-1.5 rounded">
                     <LayoutDashboard size={20} />
                 </div>
-                <h2 className="text-xl font-bold tracking-tight">SaaS Cloud</h2>
+                <h2 className="text-xl font-bold tracking-tight text-zinc-100">Zoom Cloud</h2>
             </div>
 
             <nav className="flex-1 space-y-1">
@@ -99,6 +96,40 @@ export function UserSidebar({ usage, subscription, fullSubscription }: UserSideb
                     <LogOut size={18} /> Logout
                 </Button>
             </div>
+        </>
+    );
+}
+
+export function UserSidebar({ usage, subscription, fullSubscription }: UserSidebarProps) {
+    const { logout } = useAuth();
+    const pathname = usePathname();
+
+    return (
+        <aside className="w-64 bg-zinc-900 border-r border-zinc-800 p-6 flex-col hidden md:flex h-screen sticky top-0">
+            <SidebarContent
+                usage={usage}
+                subscription={subscription}
+                fullSubscription={fullSubscription}
+                pathname={pathname}
+                logout={logout}
+            />
         </aside>
+    );
+}
+
+export function UserMobileSidebar({ usage, subscription, fullSubscription }: UserSidebarProps) {
+    const { logout } = useAuth();
+    const pathname = usePathname();
+
+    return (
+        <div className="flex flex-col h-full p-4">
+            <SidebarContent
+                usage={usage}
+                subscription={subscription}
+                fullSubscription={fullSubscription}
+                pathname={pathname}
+                logout={logout}
+            />
+        </div>
     );
 }

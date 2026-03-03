@@ -11,16 +11,16 @@ export default function SystemConfigManagement() {
     const { data: systemConfig, isLoading: configLoading } = useGetSystemConfigQuery();
     const [updateSystemConfig] = useUpdateSystemConfigMutation();
 
-    if (configLoading) return <div className="h-60 flex items-center justify-center italic text-zinc-500 bg-zinc-900/40 rounded-2xl border border-zinc-800">Loading data...</div>;
+    if (configLoading) return <div className="h-60 flex items-center justify-center italic text-zinc-500 bg-zinc-900/40 rounded-md border border-zinc-800">Loading data...</div>;
 
     return (
         <div>
-            <header className="flex justify-between items-center mb-10 bg-zinc-900/50 p-6 rounded-2xl border border-zinc-800">
-                <div>
-                    <h1 className="text-3xl font-extrabold tracking-tight capitalize">
+            <header className="flex flex-col md:flex-row justify-between gap-3 md:items-center mb-10 bg-zinc-900/50 p-6 rounded-md border border-zinc-800">
+                <div className="flex flex-col gap-1">
+                    <h1 className="text-xl md:text-3xl font-extrabold tracking-tight capitalize">
                         System Config Management
                     </h1>
-                    <p className="text-zinc-500 mt-1">
+                    <p className="text-zinc-500 mt-1 text-sm md:text-base">
                         Configure global system settings and monitor status
                     </p>
                 </div>
